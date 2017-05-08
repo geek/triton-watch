@@ -1,0 +1,29 @@
+{
+  "name": "triton-watch",
+  "version": "0.0.0",
+  "description": "Triton Container Watcher",
+  "main": "lib",
+  "scripts": {
+    "lint": "belly-button",
+    "test": "lab"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/geek/triton-watch.git"
+  },
+  "keywords": [],
+  "author": "wyatt",
+  "license": "MPL-2.0",
+  "bugs": {
+    "url": "https://github.com/geek/triton-watch/issues"
+  },
+  "homepage": "https://github.com/geek/triton-watch#readme",
+  "dependencies": {
+    "triton": "5.2.x"
+  },
+  "devDependencies": {
+    "belly-button": "3.x.x",
+    "code": "4.x.x",
+    "lab": "13.x.x"
+  }
+}
