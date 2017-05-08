@@ -111,13 +111,12 @@ describe('onChange', () => {
       });
     };
 
-    const tritonWatch = new TritonWatch({ frequency: 10 });
-    tritonWatch.on('change', (container) => {
+    const tritonWatch = new TritonWatch({ frequency: 10, onChange: (container) => {
       expect(container.id).to.equal('boom');
       expect(container.state).to.equal('deleted');
       Triton.createClient = createClient;
       done();
-    });
+    }});
 
     tritonWatch.poll();
   });
