@@ -31,24 +31,26 @@ describe('constructor', () => {
 
 describe('onChange', () => {
   it('executes when there is a new container', (done) => {
-    Triton.createClient = function () {
+    Triton.createClient = function (opts, cb) {
       let executeCount = 0;
-      return {
-        listMachines: function (opts, cb) {
-          const result = ++executeCount === 1 ? [{
-            id: 'boom',
-            state: 'running'
-          }] : [{
-            id: 'boom',
-            state: 'running'
-          }, {
-            id: 'dynamite',
-            state: 'running'
-          }];
+      cb(null, {
+        cloudapi: {
+          listMachines: function (opts, cb) {
+            const result = ++executeCount === 1 ? [{
+              id: 'boom',
+              state: 'running'
+            }] : [{
+              id: 'boom',
+              state: 'running'
+            }, {
+              id: 'dynamite',
+              state: 'running'
+            }];
 
-          cb(null, result);
+            cb(null, result);
+          }
         }
-      };
+      });
     };
 
     const tritonWatch = new TritonWatch({ frequency: 10 });
@@ -62,21 +64,23 @@ describe('onChange', () => {
   });
 
   it('executes when a containers state changes', (done) => {
-    Triton.createClient = function () {
+    Triton.createClient = function (opts, cb) {
       let executeCount = 0;
-      return {
-        listMachines: function (opts, cb) {
-          const result = ++executeCount === 1 ? [{
-            id: 'boom',
-            state: 'running'
-          }] : [{
-            id: 'boom',
-            state: 'stopped'
-          }];
+      cb(null, {
+        cloudapi: {
+          listMachines: function (opts, cb) {
+            const result = ++executeCount === 1 ? [{
+              id: 'boom',
+              state: 'running'
+            }] : [{
+              id: 'boom',
+              state: 'stopped'
+            }];
 
-          cb(null, result);
+            cb(null, result);
+          }
         }
-      };
+      });
     };
 
     const tritonWatch = new TritonWatch({ frequency: 10 });
@@ -91,18 +95,20 @@ describe('onChange', () => {
   });
 
   it('executes when a container is deleted', (done) => {
-    Triton.createClient = function () {
+    Triton.createClient = function (opts, cb) {
       let executeCount = 0;
-      return {
-        listMachines: function (opts, cb) {
-          const result = ++executeCount === 1 ? [{
-            id: 'boom',
-            state: 'running'
-          }] : [];
+      cb(null, {
+        cloudapi: {
+          listMachines: function (opts, cb) {
+            const result = ++executeCount === 1 ? [{
+              id: 'boom',
+              state: 'running'
+            }] : [];
 
-          cb(null, result);
+            cb(null, result);
+          }
         }
-      };
+      });
     };
 
     const tritonWatch = new TritonWatch({ frequency: 10 });
@@ -115,4 +121,4 @@ describe('onChange', () => {
 
     tritonWatch.poll();
   });
-})
+});
