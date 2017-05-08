@@ -6,6 +6,8 @@ const Triton = require('triton');
 const TritonWatch = require('../');
 
 
+// Test shortcuts
+
 const lab = exports.lab = Lab.script();
 const describe = lab.describe;
 const it = lab.it;
@@ -26,3 +28,91 @@ describe('constructor', () => {
     done();
   });
 });
+
+describe('onChange', () => {
+  it('executes when there is a new container', (done) => {
+    Triton.createClient = function () {
+      let executeCount = 0;
+      return {
+        listMachines: function (opts, cb) {
+          const result = ++executeCount === 1 ? [{
+            id: 'boom',
+            state: 'running'
+          }] : [{
+            id: 'boom',
+            state: 'running'
+          }, {
+            id: 'dynamite',
+            state: 'running'
+          }];
+
+          cb(null, result);
+        }
+      };
+    };
+
+    const tritonWatch = new TritonWatch({ frequency: 10 });
+    tritonWatch.on('change', (container) => {
+      expect(container.id).to.equal('dynamite');
+      Triton.createClient = createClient;
+      done();
+    });
+
+    tritonWatch.poll();
+  });
+
+  it('executes when a containers state changes', (done) => {
+    Triton.createClient = function () {
+      let executeCount = 0;
+      return {
+        listMachines: function (opts, cb) {
+          const result = ++executeCount === 1 ? [{
+            id: 'boom',
+            state: 'running'
+          }] : [{
+            id: 'boom',
+            state: 'stopped'
+          }];
+
+          cb(null, result);
+        }
+      };
+    };
+
+    const tritonWatch = new TritonWatch({ frequency: 10 });
+    tritonWatch.on('change', (container) => {
+      expect(container.id).to.equal('boom');
+      expect(container.state).to.equal('stopped');
+      Triton.createClient = createClient;
+      done();
+    });
+
+    tritonWatch.poll();
+  });
+
+  it('executes when a container is deleted', (done) => {
+    Triton.createClient = function () {
+      let executeCount = 0;
+      return {
+        listMachines: function (opts, cb) {
+          const result = ++executeCount === 1 ? [{
+            id: 'boom',
+            state: 'running'
+          }] : [];
+
+          cb(null, result);
+        }
+      };
+    };
+
+    const tritonWatch = new TritonWatch({ frequency: 10 });
+    tritonWatch.on('change', (container) => {
+      expect(container.id).to.equal('boom');
+      expect(container.state).to.equal('deleted');
+      Triton.createClient = createClient;
+      done();
+    });
+
+    tritonWatch.poll();
+  });
+})
