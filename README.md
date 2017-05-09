@@ -23,7 +23,7 @@ tritonWatch.poll();
 
 ## API
 
-### `constructor(options)``
+### `constructor(options)`
 
 `options` is a required object with the following properties
 
