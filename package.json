@@ -1,6 +1,6 @@
 {
   "name": "triton-watch",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Triton Container Watcher",
   "main": "lib",
   "scripts": {
