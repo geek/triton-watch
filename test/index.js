@@ -1,6 +1,5 @@
 'use strict';
 
-const once = require('lodash.once');
 const Code = require('code');
 const Lab = require('lab');
 const Triton = require('triton');
@@ -20,18 +19,22 @@ const createClient = Triton.createClient;
 
 describe('constructor', () => {
   it('gracefully handles slow connections', (done) => {
-    const _done = once(done); 
-    Triton.createClient = (opts, fn) => setTimeout(() => fn(null, {
-      cloudapi: {
-        listMachines: (opts, fn) => {
-          fn(null, []);
-          _done();
-        }
+    let isDone = false;
+    const listMachines = (opts, cb) => {
+      cb(null, []);
+      if (!isDone) {
+        done();
       }
-    }), 333);
+      isDone = true;
+    };
 
-    ;new TritonWatch({ frequency: 16 }).poll();
+    Triton.createClient = function (opts, cb) {
+      setTimeout(() => { cb(null, { cloudapi: { listMachines } }); }, 333);
+    };
+
+    const tritonWatch = new TritonWatch({ frequency: 16 });
     Triton.createClient = createClient;
+    tritonWatch.poll();
   });
 
   it('adds onChange handler if passed through options', (done) => {
@@ -127,12 +130,15 @@ describe('onChange', () => {
       });
     };
 
-    const tritonWatch = new TritonWatch({ frequency: 10, onChange: (container) => {
-      expect(container.id).to.equal('boom');
-      expect(container.state).to.equal('deleted');
-      Triton.createClient = createClient;
-      done();
-    }});
+    const tritonWatch = new TritonWatch({
+      frequency: 10,
+      onChange: (container) => {
+        expect(container.id).to.equal('boom');
+        expect(container.state).to.equal('deleted');
+        Triton.createClient = createClient;
+        done();
+      }
+    });
 
     tritonWatch.poll();
   });
