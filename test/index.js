@@ -1,5 +1,6 @@
 'use strict';
 
+const once = require('lodash.once');
 const Code = require('code');
 const Lab = require('lab');
 const Triton = require('triton');
@@ -18,6 +19,21 @@ const createClient = Triton.createClient;
 
 
 describe('constructor', () => {
+  it('gracefully handles slow connections', (done) => {
+    const _done = once(done); 
+    Triton.createClient = (opts, fn) => setTimeout(() => fn(null, {
+      cloudapi: {
+        listMachines: (opts, fn) => {
+          fn(null, []);
+          _done();
+        }
+      }
+    }), 333);
+
+    ;new TritonWatch({ frequency: 16 }).poll();
+    Triton.createClient = createClient;
+  });
+
   it('adds onChange handler if passed through options', (done) => {
     const onChange = function () {};
     Triton.createClient = function (opts) {};
