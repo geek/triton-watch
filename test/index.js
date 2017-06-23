@@ -143,3 +143,35 @@ describe('onChange', () => {
     tritonWatch.poll();
   });
 });
+
+
+describe('onAll', () => {
+  it('executes on first poll', (done) => {
+    Triton.createClient = function (opts, cb) {
+      cb(null, {
+        cloudapi: {
+          listMachines: function (opts, cb) {
+            const result = [{
+              id: 'boom',
+              state: 'running'
+            }, {
+              id: 'dynamite',
+              state: 'running'
+            }];
+
+            cb(null, result);
+          }
+        }
+      });
+    };
+
+    const tritonWatch = new TritonWatch({ frequency: 10 });
+    tritonWatch.on('all', (containers) => {
+      expect(containers.length).to.equal(2);
+      Triton.createClient = createClient;
+      done();
+    });
+
+    tritonWatch.poll();
+  });
+});
