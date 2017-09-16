@@ -1,6 +1,5 @@
 'use strict';
 
-const Code = require('code');
 const Lab = require('lab');
 const Triton = require('triton');
 const TritonWatch = require('../');
@@ -11,7 +10,7 @@ const TritonWatch = require('../');
 const lab = exports.lab = Lab.script();
 const describe = lab.describe;
 const it = lab.it;
-const expect = Code.expect;
+const expect = lab.expect;
 
 
 const createClient = Triton.createClient;
